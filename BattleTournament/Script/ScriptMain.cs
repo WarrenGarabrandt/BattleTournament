@@ -24,6 +24,15 @@ namespace BattleTournament.Script
                 {
                     GameState.IsPaused = false;
                     mouse.MouseMode = MouseState.MouseModes.Delta;
+                    mouse.MouseHidden = true;
+                }
+                else
+                {
+                    // option to toggle full screen/windowed
+                    if (key.RightAltHeld && key.EnterPressed)
+                    {
+                        // switch between full screen and windowed mode
+                    }
                 }
             }
             else
@@ -32,6 +41,7 @@ namespace BattleTournament.Script
                 {
                     GameState.IsPaused = true;
                     mouse.MouseMode = MouseState.MouseModes.RelativeCoords;
+                    mouse.MouseHidden = false;
                 }
             }
 

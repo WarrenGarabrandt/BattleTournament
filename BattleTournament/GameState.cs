@@ -15,6 +15,8 @@ namespace BattleTournament
 
         public static GameObject PlayerObject { get; set; }
 
-
+        public static double BulletSpeed = 8.0;
+        public static double PlayerBulletsPerMinute = 600.0;
+        public static double BulletFireCooldown = 0.0;
     }
 }

@@ -97,9 +97,26 @@ namespace BattleTournament
         {
             lock (MouseState)
             {
+                MouseState.ChangeMouseMode = false;
+                if (MouseState.MouseHidden)
+                {
+                    if (!MouseState.MouseIsHidden)
+                    {
+                        MouseState.MouseIsHidden = true;
+                        Cursor.Hide();
+                    }
+                }
+                else
+                {
+                    if (MouseState.MouseIsHidden)
+                    {
+                        MouseState.MouseIsHidden = false;
+                        Cursor.Show();
+                    }
+                }
                 if (MouseState.ChangeMouseMode)
                 {
-                    MouseState.ChangeMouseMode = false;
+
                     if (MouseState.MouseMode == MouseState.MouseModes.Delta)
                     {
                         Point mouseCenter = new Point(this.ClientRectangle.Width / 2, this.ClientRectangle.Height / 2);

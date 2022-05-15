@@ -40,6 +40,8 @@ namespace BattleTournament
             }
         }
         public bool ChangeMouseMode { get; set; }
+        public bool MouseHidden { get; set; }
+        public bool MouseIsHidden { get; set; }
         public int dX { get; set; }
         public int dY { get; set; }
         public Point Location { get; set; }

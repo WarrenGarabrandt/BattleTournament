@@ -96,5 +96,53 @@
   <ItemGroup>
     <None Include="Resources\bomber-sprite.png" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ship1-0.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ship1-1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ship1-2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ship1-15.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ship1-14.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ship1-13.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ship1-12.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ship1-11.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ship1-10.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ship1-9.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ship1-8.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ship1-7.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ship1-6.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ship1-5.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ship1-4.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ship1-3.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

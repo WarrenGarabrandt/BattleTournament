@@ -78,11 +78,49 @@ namespace BattleTournament
             {
                 key.EscHeld = false;
             }
+            if ((Keyboard.GetKeyStates(Key.Enter) & KeyStates.Down) > 0)
+            {
+                if (!key.EnterHeld)
+                {
+                    key.EnterPressed = true;
+                }
+                key.EnterHeld = true;
+            }
+            else if (key.EnterHeld)
+            {
+                key.EnterHeld = false;
+            }
+            if ((Keyboard.GetKeyStates(Key.RightAlt) & KeyStates.Down) > 0)
+            {
+                key.RightAltHeld = true;
+            }
+            else if (key.RightAltHeld)
+            {
+                key.RightAltHeld = false;
+            }
+            if ((Keyboard.GetKeyStates(Key.LeftShift) & KeyStates.Down) > 0)
+            {
+                key.LeftShiftHeld = true;
+            }
+            else if (key.LeftShiftHeld)
+            {
+                key.LeftShiftHeld = false;
+            }
+            if ((Keyboard.GetKeyStates(Key.RightShift) & KeyStates.Down) > 0)
+            {
+                key.RightShiftHeld = true;
+            }
+            else if (key.RightShiftHeld)
+            {
+                key.RightShiftHeld = false;
+            }
         }
 
         private void FinalizeKeyboard(KeyboardState key)
         {
             key.EscPressed = false;
+            key.EnterPressed = false;
+            //key.RightAltPressed = false;
         }
 
         public void Update(TimeSpan gameTime, KeyboardState key, MouseState mouse)
@@ -105,11 +143,9 @@ namespace BattleTournament
 
         public void Draw(Graphics g)
         {
-            g.FillRectangle(new SolidBrush(Color.CornflowerBlue), new Rectangle(0, 0, GameState.GameResolution.Width, GameState.GameResolution.Height));
-            g.DrawString(DisplayText, fontFPS, Brushes.Black, new PointF(5, 5));
-
             if (GameState.IsPaused)
             {
+                g.FillRectangle(new SolidBrush(Color.CornflowerBlue), new Rectangle(0, 0, GameState.GameResolution.Width, GameState.GameResolution.Height));
                 SizeF pauseSize = g.MeasureString("GAME PAUSED", fontPause);
 
                 g.DrawString("GAME PAUSED", fontPause, Brushes.Red, 
@@ -117,8 +153,13 @@ namespace BattleTournament
             }
             else
             {
+                g.FillRectangle(new SolidBrush(Color.Black), new Rectangle(0, 0, GameState.GameResolution.Width, GameState.GameResolution.Height));
+
                 GameState.PlayerObject.Sprite.Draw(g);
             }
+
+            g.DrawString(DisplayText, fontFPS, Brushes.White, new PointF(5, 5));
+
         }
 
 

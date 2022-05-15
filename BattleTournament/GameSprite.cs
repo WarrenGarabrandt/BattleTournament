@@ -5,6 +5,7 @@ namespace BattleTournament
     public class GameSprite
     {
         public Bitmap SpriteImage { get; set; }
+        public Bitmap[] SpriteArray { get; set; }
         public float X { get; set; }
         public float Y { get; set; }
         public float Width { get; set; }
