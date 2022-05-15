@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace BattleTournament
 {
-    public class GameObject
+    public class KeyboardState
     {
-        public GameSprite Sprite { get; set; }
-        public KinematicObject Kimematic { get; set; }
+        public bool EscHeld { get; set; }
+        public bool EscPressed { get; set; }
     }
 }

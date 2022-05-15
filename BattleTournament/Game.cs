@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BattleTournament.Script;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -11,22 +12,9 @@ namespace BattleTournament
 {
     public class Game
     {
-        private GameObject playerObject;
-        
-        public Size Resolution { get; set; }
-
-        public void Load()
+        public void Load(KeyboardState key, MouseState mouse)
         {
-            playerObject = new GameObject();
-            playerObject.sprite = new GameSprite();
-            playerObject.sprite.SpriteImage = Properties.Resources.bomber_sprite;
-            playerObject.sprite.Width = playerObject.sprite.SpriteImage.Width;
-            playerObject.sprite.Height = playerObject.sprite.SpriteImage.Height;
-            playerObject.sprite.X = 300;
-            playerObject.sprite.Y = 300;
-            playerObject.kimematic = new KinematicObject();
-            playerObject.kimematic.dX = 0;
-            playerObject.kimematic.dY = 0;
+            ScriptMain.Load(key, mouse);
         }
 
         public void Unload()
@@ -36,93 +24,101 @@ namespace BattleTournament
 
         string DisplayText = "";
 
-        private void UpdateMouse(MouseState mouse)
+        private void ProcessMouse(MouseState mouse)
         {
-            mouse.dX = mouse.Location.X - mouse.LastLocation.X;
-            mouse.dY = mouse.Location.Y - mouse.LastLocation.Y;
-            if (mouse.Buttons == MouseButtons.None && mouse.LastButtons == MouseButtons.Left)
+            if ((mouse.Buttons & MouseButtons.Left) == MouseButtons.Left)
             {
-                mouse.LeftClicked = true;
+                if (!mouse.LeftHeld)
+                {
+                    mouse.LeftClicked = true;
+                }
+                mouse.LeftHeld = true;
             }
-            if (mouse.Buttons == MouseButtons.None && mouse.LastButtons == MouseButtons.Right)
+            else
             {
-                mouse.RightClicked = true;
+                mouse.LeftHeld = false;
+            }
+
+            if ((mouse.Buttons & MouseButtons.Right) == MouseButtons.Right)
+            {
+                if (!mouse.RightHeld)
+                {
+                    mouse.RightClicked = true;
+                }
+                mouse.RightHeld = true;
+            }
+            else
+            {
+                mouse.RightHeld = false;
             }
         }
 
         private void FinalizeMouse(MouseState mouse)
         {
-            mouse.LastLocation = mouse.Location;
             mouse.LastButtons = mouse.Buttons;
             mouse.Clicks = 0;
             mouse.WheelTicks = 0;
             mouse.LeftClicked = false;
             mouse.RightClicked = false;
+            mouse.dX = 0;
+            mouse.dY = 0;
         }
-        public void Update(TimeSpan gameTime, MouseState mouse)
+
+        private void ProcessKeyboard(KeyboardState key)
+        {
+            if ((Keyboard.GetKeyStates(Key.Escape) & KeyStates.Down) > 0)
+            {
+                if (!key.EscHeld)
+                {
+                    key.EscPressed = true;
+                }
+                key.EscHeld = true;
+            }
+            else if (key.EscHeld)
+            {
+                key.EscHeld = false;
+            }
+        }
+
+        private void FinalizeKeyboard(KeyboardState key)
+        {
+            key.EscPressed = false;
+        }
+
+        public void Update(TimeSpan gameTime, KeyboardState key, MouseState mouse)
         {
             // get time elapsed in decimal of a second
             double gameTimeElapsed = gameTime.TotalMilliseconds / 1000f;
             DisplayText = string.Format("FPS: {0}", (int)(1f / gameTimeElapsed));
-            float force = (float)(playerObject.kimematic.force * gameTimeElapsed);
 
-            UpdateMouse(mouse);
-            if (mouse.LeftClicked)
-            {
-                mouse.Tracking = !mouse.Tracking;
-            }
-            if (mouse.Tracking)
-            {
-                playerObject.kimematic.dX += mouse.dX * force * 0.1f;
-                playerObject.kimematic.dY += mouse.dY * force * 0.1f;
-            }
+            ProcessMouse(mouse);
+            ProcessKeyboard(key);
 
-            if ((Keyboard.GetKeyStates(Key.Right) & KeyStates.Down) > 0)
-            {
-                playerObject.kimematic.dX += force;
-                if (playerObject.kimematic.dX > playerObject.kimematic.dXMax)
-                {
-                    playerObject.kimematic.dX = playerObject.kimematic.dXMax;
-                }
-            }
-            if ((Keyboard.GetKeyStates(Key.Left) & KeyStates.Down) > 0)
-            {
-                playerObject.kimematic.dX -= force;
-                if (playerObject.kimematic.dX < -1 * playerObject.kimematic.dXMax)
-                {
-                    playerObject.kimematic.dX = -1 * playerObject.kimematic.dXMax;
-                }
-            }
-            if ((Keyboard.GetKeyStates(Key.Up) & KeyStates.Down) > 0)
-            {
-                playerObject.kimematic.dY -= force;
-                if (playerObject.kimematic.dY < -1 * playerObject.kimematic.dYMax)
-                {
-                    playerObject.kimematic.dY = -1 * playerObject.kimematic.dYMax;
-                }
-            }
-            if ((Keyboard.GetKeyStates(Key.Down) & KeyStates.Down) > 0)
-            {
-                playerObject.kimematic.dY += force;
-                if (playerObject.kimematic.dY > playerObject.kimematic.dYMax)
-                {
-                    playerObject.kimematic.dY = playerObject.kimematic.dYMax;
-                }
-            }
+            ScriptMain.Update(gameTimeElapsed, key, mouse);
 
-            playerObject.sprite.X += playerObject.kimematic.dX;
-            playerObject.sprite.Y += playerObject.kimematic.dY;
-
+            FinalizeKeyboard(key);
             FinalizeMouse(mouse);
         }
 
-        Font f = new Font("Consolas", 16);
+        Font fontFPS = new Font("Consolas", 16);
+        Font fontPause = new Font("Consolas", 92);
 
-        public void Draw(Graphics gfx)
+        public void Draw(Graphics g)
         {
-            gfx.FillRectangle(new SolidBrush(Color.CornflowerBlue), new Rectangle(0, 0, Resolution.Width, Resolution.Height));
-            gfx.DrawString(DisplayText, f, Brushes.Black, new PointF(5, 5));
-            playerObject.sprite.Draw(gfx);
+            g.FillRectangle(new SolidBrush(Color.CornflowerBlue), new Rectangle(0, 0, GameState.GameResolution.Width, GameState.GameResolution.Height));
+            g.DrawString(DisplayText, fontFPS, Brushes.Black, new PointF(5, 5));
+
+            if (GameState.IsPaused)
+            {
+                SizeF pauseSize = g.MeasureString("GAME PAUSED", fontPause);
+
+                g.DrawString("GAME PAUSED", fontPause, Brushes.Red, 
+                    new PointF((GameState.GameResolution.Width - pauseSize.Width) / 2 , (GameState.GameResolution.Height - pauseSize.Height) / 2));
+            }
+            else
+            {
+                GameState.PlayerObject.Sprite.Draw(g);
+            }
         }
 
 

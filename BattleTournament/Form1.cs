@@ -9,6 +9,7 @@ namespace BattleTournament
     public partial class Form1 : Form
     {
         GameLoop _gameLoop = null;
+        KeyboardState KeyboardState = new KeyboardState();
         MouseState MouseState = new MouseState();
 
         #region
@@ -38,7 +39,7 @@ namespace BattleTournament
                 {
                     while (AppStillIdle)
                     {
-                        if (_gameLoop.Update(MouseState))
+                        if (_gameLoop.Update(KeyboardState, MouseState))
                         {
                             using (var g = this.CreateGraphics())
                             {
@@ -83,40 +84,60 @@ namespace BattleTournament
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            Rectangle resolution = Screen.PrimaryScreen.Bounds;
+            Rectangle resolution = this.ClientRectangle;
 
             Game myGame = new Game();
-            myGame.Resolution = new Size(resolution.Width, resolution.Height);
-
             _gameLoop = new GameLoop();
+            _gameLoop.SetResolution(resolution);
             _gameLoop.Load(myGame);
-            _gameLoop.Start(this);
+            _gameLoop.Start(KeyboardState, MouseState);
         }
 
         private void Form1_MouseMove(object sender, MouseEventArgs e)
         {
             lock (MouseState)
             {
-                MouseState.Location = e.Location;
+                if (MouseState.ChangeMouseMode)
+                {
+                    MouseState.ChangeMouseMode = false;
+                    if (MouseState.MouseMode == MouseState.MouseModes.Delta)
+                    {
+                        Point mouseCenter = new Point(this.ClientRectangle.Width / 2, this.ClientRectangle.Height / 2);
+                        MouseState.Location = mouseCenter;
+                        MouseState.dX = 0;
+                        MouseState.dY = 0;
+                        Cursor.Position = mouseCenter;
+                    }
+                }
+                else
+                {
+                    if (MouseState.MouseMode == MouseState.MouseModes.RelativeCoords)
+                    {
+                        MouseState.Location = e.Location;
+                    }
+                    else if (MouseState.MouseMode == MouseState.MouseModes.Delta)
+                    {
+                        MouseState.dX += e.X - MouseState.Location.X;
+                        MouseState.dY += e.Y - MouseState.Location.Y;
+                        if (MouseState.Location.X != e.X || MouseState.Location.Y != e.Y)
+                        {
+                            Cursor.Position = MouseState.Location;
+                        }
+                    }
+                }
+
                 MouseState.Buttons = e.Button;
                 MouseState.Clicks += e.Clicks;
                 MouseState.WheelTicks += e.Delta;
             }
         }
 
-        private void Form1_MouseLeave(object sender, EventArgs e)
+        private void Form1_Resize(object sender, EventArgs e)
         {
-            lock (MouseState)
+            if (_gameLoop != null)
             {
-                MouseState.FormFocused = false;
-            }
-        }
-
-        private void Form1_MouseEnter(object sender, EventArgs e)
-        {
-            lock (MouseState)
-            {
-                MouseState.FormFocused = true;
+                _gameLoop.SetResolution(this.ClientRectangle);
+                MouseState.ChangeMouseMode = true;
             }
         }
     }

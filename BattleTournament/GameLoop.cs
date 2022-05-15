@@ -12,6 +12,11 @@ namespace BattleTournament
     {
         private Game _myGame;
 
+        public void SetResolution(Rectangle rect)
+        {
+            GameState.GameResolution = rect;
+        }
+
         public bool Running { get; private set; }
 
         public void Load(Game gameObj)
@@ -19,14 +24,14 @@ namespace BattleTournament
             _myGame = gameObj;
         }
 
-        public void Start(Form1 ctrl)
+        public void Start(KeyboardState key, MouseState mouse)
         {
             if (_myGame == null)
             {
                 throw new ArgumentException("Game not loaded!");
             }
 
-            _myGame.Load();
+            _myGame.Load(key, mouse);
 
             Running = true;
             _previousGameTime = DateTime.Now;
@@ -38,7 +43,7 @@ namespace BattleTournament
         /// Returns true if we should repaint
         /// </summary>
         /// <returns></returns>
-        public bool Update(MouseState mouse)
+        public bool Update(KeyboardState key, MouseState mouse)
         {
             if (Running)
             {
@@ -46,7 +51,7 @@ namespace BattleTournament
                 if (GameTime.TotalMilliseconds > 10)
                 {
                     _previousGameTime += GameTime;
-                    _myGame.Update(GameTime, mouse);
+                    _myGame.Update(GameTime, key, mouse);
                     return true;
                 }
             }
@@ -59,9 +64,9 @@ namespace BattleTournament
             _myGame?.Unload();
         }
 
-        public void Draw(Graphics gfx)
+        public void Draw(Graphics g)
         {
-            _myGame.Draw(gfx);
+            _myGame.Draw(g);
         }
     }
 }

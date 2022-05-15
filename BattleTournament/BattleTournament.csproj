@@ -59,10 +59,14 @@
     <Compile Include="GameLoop.cs" />
     <Compile Include="GameObject.cs" />
     <Compile Include="GameSprite.cs" />
+    <Compile Include="GameState.cs" />
+    <Compile Include="KeyboardState.cs" />
     <Compile Include="KinematicObject.cs" />
     <Compile Include="MouseState.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Script\ScriptMain.cs" />
+    <Compile Include="Script\SpaceShipTest.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>
