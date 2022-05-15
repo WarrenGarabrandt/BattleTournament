@@ -11,8 +11,6 @@ namespace BattleTournament
         public float dX { get; set; }
         public float dY { get; set; }
 
-        public float dXMax = 2f;
-        public float dYMax = 2f;
-        public float force = 8f;
+
     }
 }

@@ -144,5 +144,53 @@
   <ItemGroup>
     <None Include="Resources\ship1-3.png" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\PlayerBullet-0.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\PlayerBullet-1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\PlayerBullet-2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\PlayerBullet-3.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\PlayerBullet-4.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\PlayerBullet-5.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\PlayerBullet-6.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\PlayerBullet-7.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\PlayerBullet-8.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\PlayerBullet-9.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\PlayerBullet-10.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\PlayerBullet-11.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\PlayerBullet-12.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\PlayerBullet-13.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\PlayerBullet-14.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\PlayerBullet-15.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

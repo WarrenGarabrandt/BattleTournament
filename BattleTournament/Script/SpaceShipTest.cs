@@ -12,7 +12,9 @@ namespace BattleTournament.Script
     {
         public static void Load()
         {
+            // Start the game paused for now.
             GameState.IsPaused = true;
+            // Create the player object
             GameState.PlayerObject = new GameObject();
             GameState.PlayerObject.Sprite = new GameSprite();
             GameState.PlayerObject.Sprite.SpriteArray = new Bitmap[16];
@@ -32,8 +34,26 @@ namespace BattleTournament.Script
             GameState.PlayerObject.Sprite.SpriteArray[13] = Properties.Resources.ship1_13;
             GameState.PlayerObject.Sprite.SpriteArray[14] = Properties.Resources.ship1_14;
             GameState.PlayerObject.Sprite.SpriteArray[15] = Properties.Resources.ship1_15;
-
             GameState.PlayerObject.Sprite.SpriteImage = GameState.PlayerObject.Sprite.SpriteArray[4];
+
+            // load the player bullet images
+            GameState.PlayerBulletSprites = new Dictionary<int, GameSprite>();
+            GameState.PlayerBulletSprites[0] = new GameSprite(Properties.Resources.PlayerBullet_0, 55, 28);
+            GameState.PlayerBulletSprites[1] = new GameSprite(Properties.Resources.PlayerBullet_1, 54, 16);
+            GameState.PlayerBulletSprites[2] = new GameSprite(Properties.Resources.PlayerBullet_2, 48, 5);
+            GameState.PlayerBulletSprites[3] = new GameSprite(Properties.Resources.PlayerBullet_3, 41, -2);
+            GameState.PlayerBulletSprites[4] = new GameSprite(Properties.Resources.PlayerBullet_4, 28, -3);
+            GameState.PlayerBulletSprites[5] = new GameSprite(Properties.Resources.PlayerBullet_5, 16, -2);
+            GameState.PlayerBulletSprites[6] = new GameSprite(Properties.Resources.PlayerBullet_6, 4, 6);
+            GameState.PlayerBulletSprites[7] = new GameSprite(Properties.Resources.PlayerBullet_7, -2, 17);
+            GameState.PlayerBulletSprites[8] = new GameSprite(Properties.Resources.PlayerBullet_8, -4, 28);
+            GameState.PlayerBulletSprites[9] = new GameSprite(Properties.Resources.PlayerBullet_9, -1, 40);
+            GameState.PlayerBulletSprites[10] = new GameSprite(Properties.Resources.PlayerBullet_10, 4, 46);
+            GameState.PlayerBulletSprites[11] = new GameSprite(Properties.Resources.PlayerBullet_11, 17, 52);
+            GameState.PlayerBulletSprites[12] = new GameSprite(Properties.Resources.PlayerBullet_12, 29, 54);
+            GameState.PlayerBulletSprites[13] = new GameSprite(Properties.Resources.PlayerBullet_13, 39, 52);
+            GameState.PlayerBulletSprites[14] = new GameSprite(Properties.Resources.PlayerBullet_14, 48, 47);
+            GameState.PlayerBulletSprites[15] = new GameSprite(Properties.Resources.PlayerBullet_15, 53, 40);
 
             GameState.PlayerObject.Sprite.Width = GameState.PlayerObject.Sprite.SpriteImage.Width;
             GameState.PlayerObject.Sprite.Height = GameState.PlayerObject.Sprite.SpriteImage.Height;
@@ -42,46 +62,79 @@ namespace BattleTournament.Script
             GameState.PlayerObject.Kimematic = new KinematicObject();
             GameState.PlayerObject.Kimematic.dX = 0;
             GameState.PlayerObject.Kimematic.dY = 0;
+            GameState.PlayerBullets = new HashSet<GameObject>();
         }
 
-        public static void Update(double gameTime, MouseState mouse, Rectangle rect)
+        public static void Update(double gameTime, KeyboardState key, MouseState mouse, Rectangle rect)
         {
-            float force = (float)(GameState.PlayerObject.Kimematic.force * gameTime);
+            // update position of all player bullets
+            foreach (var pbullet in GameState.PlayerBullets)
+            {
+                pbullet.Sprite.X += pbullet.Kimematic.dX;
+                pbullet.Sprite.Y += pbullet.Kimematic.dY;
+                pbullet.Lifetime -= gameTime;
+            }
+
+            GameState.PlayerBullets.RemoveWhere(x => x.Lifetime < 0.0);
 
 
+            // movement speed force for mouse delta and keyboard arrow keys
+            float force = (float)(GameState.PlayerAcceleration * gameTime);
+
+            //mouse movement input
             GameState.PlayerObject.Kimematic.dX += mouse.dX * force * 0.3f;
             GameState.PlayerObject.Kimematic.dY += mouse.dY * force * 0.3f;
-            
+            // cap player movement. This is a quick hack because it's 1 AM.
+            // I'll change this to calculate the angle the player is moving at, and 
+            // properly limit them to the actual speed.
+            if (GameState.PlayerObject.Kimematic.dX > GameState.PlayerMaxSpeed)
+            {
+                GameState.PlayerObject.Kimematic.dX = GameState.PlayerMaxSpeed;
+            }
+            if (GameState.PlayerObject.Kimematic.dY > GameState.PlayerMaxSpeed)
+            {
+                GameState.PlayerObject.Kimematic.dY = GameState.PlayerMaxSpeed;
+            }
+            if (GameState.PlayerObject.Kimematic.dX < -1 *GameState.PlayerMaxSpeed)
+            {
+                GameState.PlayerObject.Kimematic.dX = -1 * GameState.PlayerMaxSpeed;
+            }
+            if (GameState.PlayerObject.Kimematic.dY <  -1 * GameState.PlayerMaxSpeed)
+            {
+                GameState.PlayerObject.Kimematic.dY = -1 * GameState.PlayerMaxSpeed;
+            }
+
+            //keyboard movement input
             if ((Keyboard.GetKeyStates(Key.Right) & KeyStates.Down) > 0)
             {
                 GameState.PlayerObject.Kimematic.dX += force;
-                if (GameState.PlayerObject.Kimematic.dX > GameState.PlayerObject.Kimematic.dXMax)
+                if (GameState.PlayerObject.Kimematic.dX > GameState.PlayerMaxSpeed)
                 {
-                    GameState.PlayerObject.Kimematic.dX = GameState.PlayerObject.Kimematic.dXMax;
+                    GameState.PlayerObject.Kimematic.dX = GameState.PlayerMaxSpeed;
                 }
             }
             if ((Keyboard.GetKeyStates(Key.Left) & KeyStates.Down) > 0)
             {
                 GameState.PlayerObject.Kimematic.dX -= force;
-                if (GameState.PlayerObject.Kimematic.dX < -1 * GameState.PlayerObject.Kimematic.dXMax)
+                if (GameState.PlayerObject.Kimematic.dX < -1 * GameState.PlayerMaxSpeed)
                 {
-                    GameState.PlayerObject.Kimematic.dX = -1 * GameState.PlayerObject.Kimematic.dXMax;
+                    GameState.PlayerObject.Kimematic.dX = -1 * GameState.PlayerMaxSpeed;
                 }
             }
             if ((Keyboard.GetKeyStates(Key.Up) & KeyStates.Down) > 0)
             {
                 GameState.PlayerObject.Kimematic.dY -= force;
-                if (GameState.PlayerObject.Kimematic.dY < -1 * GameState.PlayerObject.Kimematic.dYMax)
+                if (GameState.PlayerObject.Kimematic.dY < -1 * GameState.PlayerMaxSpeed)
                 {
-                    GameState.PlayerObject.Kimematic.dY = -1 * GameState.PlayerObject.Kimematic.dYMax;
+                    GameState.PlayerObject.Kimematic.dY = -1 * GameState.PlayerMaxSpeed;
                 }
             }
             if ((Keyboard.GetKeyStates(Key.Down) & KeyStates.Down) > 0)
             {
                 GameState.PlayerObject.Kimematic.dY += force;
-                if (GameState.PlayerObject.Kimematic.dY > GameState.PlayerObject.Kimematic.dYMax)
+                if (GameState.PlayerObject.Kimematic.dY > GameState.PlayerMaxSpeed)
                 {
-                    GameState.PlayerObject.Kimematic.dY = GameState.PlayerObject.Kimematic.dYMax;
+                    GameState.PlayerObject.Kimematic.dY = GameState.PlayerMaxSpeed;
                 }
             }
 
@@ -118,7 +171,7 @@ namespace BattleTournament.Script
             {
                 theta += 360;
             }
-            int ShipIndex = ThetaToShipIndex(theta);
+            int ShipRotationIndex = ThetaToShipIndex(theta);
             // now override that actual angle if the ship is against a wall. We want to point the ship into the field, and the speed
             // determines how far it leans in the direction of travel.
 
@@ -128,39 +181,39 @@ namespace BattleTournament.Script
                 if (GameState.PlayerObject.Kimematic.dY >= -1.5 &&
                     GameState.PlayerObject.Kimematic.dY <= 1.5)
                 {
-                    ShipIndex = 0;
+                    ShipRotationIndex = 0;
                 }
                 else if (GameState.PlayerObject.Kimematic.dY < -5)
                 {
-                    ShipIndex = 4;
+                    ShipRotationIndex = 4;
                 }
                 else if (GameState.PlayerObject.Kimematic.dY > 5)
                 {
-                    ShipIndex = 12;
+                    ShipRotationIndex = 12;
                 }
                 else if (GameState.PlayerObject.Kimematic.dY < -4)
                 {
-                    ShipIndex = 3;
+                    ShipRotationIndex = 3;
                 }
                 else if (GameState.PlayerObject.Kimematic.dY > 4)
                 {
-                    ShipIndex = 13;
+                    ShipRotationIndex = 13;
                 }
                 else if (GameState.PlayerObject.Kimematic.dY < -3)
                 {
-                    ShipIndex = 2;
+                    ShipRotationIndex = 2;
                 }
                 else if (GameState.PlayerObject.Kimematic.dY > 3)
                 {
-                    ShipIndex = 14;
+                    ShipRotationIndex = 14;
                 }
                 else if (GameState.PlayerObject.Kimematic.dY < -1.5)
                 {
-                    ShipIndex = 1;
+                    ShipRotationIndex = 1;
                 }
                 else if (GameState.PlayerObject.Kimematic.dY > 1.5)
                 {
-                    ShipIndex = 15;
+                    ShipRotationIndex = 15;
                 }
             }
 
@@ -170,39 +223,39 @@ namespace BattleTournament.Script
                 if (GameState.PlayerObject.Kimematic.dY >= -1.5 &&
                     GameState.PlayerObject.Kimematic.dY <= 1.5)
                 {
-                    ShipIndex = 8;
+                    ShipRotationIndex = 8;
                 }
                 else if (GameState.PlayerObject.Kimematic.dY < -5)
                 {
-                    ShipIndex = 4;
+                    ShipRotationIndex = 4;
                 }
                 else if (GameState.PlayerObject.Kimematic.dY > 5)
                 {
-                    ShipIndex = 12;
+                    ShipRotationIndex = 12;
                 }
                 else if (GameState.PlayerObject.Kimematic.dY < -4)
                 {
-                    ShipIndex = 5;
+                    ShipRotationIndex = 5;
                 }
                 else if (GameState.PlayerObject.Kimematic.dY > 4)
                 {
-                    ShipIndex = 11;
+                    ShipRotationIndex = 11;
                 }
                 else if (GameState.PlayerObject.Kimematic.dY < -3)
                 {
-                    ShipIndex = 6;
+                    ShipRotationIndex = 6;
                 }
                 else if (GameState.PlayerObject.Kimematic.dY > 3)
                 {
-                    ShipIndex = 10;
+                    ShipRotationIndex = 10;
                 }
                 else if (GameState.PlayerObject.Kimematic.dY < -1.5)
                 {
-                    ShipIndex = 7;
+                    ShipRotationIndex = 7;
                 }
                 else if (GameState.PlayerObject.Kimematic.dY > 1.5)
                 {
-                    ShipIndex = 9;
+                    ShipRotationIndex = 9;
                 }
             }
 
@@ -212,39 +265,39 @@ namespace BattleTournament.Script
                 if (GameState.PlayerObject.Kimematic.dX >= -1.5 &&
                     GameState.PlayerObject.Kimematic.dX <= 1.5)
                 {
-                    ShipIndex = 12;
+                    ShipRotationIndex = 12;
                 }
                 else if (GameState.PlayerObject.Kimematic.dX < -5)
                 {
-                    ShipIndex = 8;
+                    ShipRotationIndex = 8;
                 }
                 else if (GameState.PlayerObject.Kimematic.dX > 5)
                 {
-                    ShipIndex = 0;
+                    ShipRotationIndex = 0;
                 }
                 else if (GameState.PlayerObject.Kimematic.dX < -4)
                 {
-                    ShipIndex = 9;
+                    ShipRotationIndex = 9;
                 }
                 else if (GameState.PlayerObject.Kimematic.dX > 4)
                 {
-                    ShipIndex = 15;
+                    ShipRotationIndex = 15;
                 }
                 else if (GameState.PlayerObject.Kimematic.dX < -3)
                 {
-                    ShipIndex = 10;
+                    ShipRotationIndex = 10;
                 }
                 else if (GameState.PlayerObject.Kimematic.dX > 3)
                 {
-                    ShipIndex = 14;
+                    ShipRotationIndex = 14;
                 }
                 else if (GameState.PlayerObject.Kimematic.dX < -1.5)
                 {
-                    ShipIndex = 11;
+                    ShipRotationIndex = 11;
                 }
                 else if (GameState.PlayerObject.Kimematic.dX > 1.5)
                 {
-                    ShipIndex = 13;
+                    ShipRotationIndex = 13;
                 }
             }
 
@@ -254,48 +307,79 @@ namespace BattleTournament.Script
                 if (GameState.PlayerObject.Kimematic.dX >= -1.5 &&
                     GameState.PlayerObject.Kimematic.dX <= 1.5)
                 {
-                    ShipIndex = 4;
+                    ShipRotationIndex = 4;
                 }
                 else if (GameState.PlayerObject.Kimematic.dX < -5)
                 {
-                    ShipIndex = 8;
+                    ShipRotationIndex = 8;
                 }
                 else if (GameState.PlayerObject.Kimematic.dX > 5)
                 {
-                    ShipIndex = 0;
+                    ShipRotationIndex = 0;
                 }
                 else if (GameState.PlayerObject.Kimematic.dX < -4)
                 {
-                    ShipIndex = 7;
+                    ShipRotationIndex = 7;
                 }
                 else if (GameState.PlayerObject.Kimematic.dX > 4)
                 {
-                    ShipIndex = 1;
+                    ShipRotationIndex = 1;
                 }
                 else if (GameState.PlayerObject.Kimematic.dX < -3)
                 {
-                    ShipIndex = 6;
+                    ShipRotationIndex = 6;
                 }
                 else if (GameState.PlayerObject.Kimematic.dX > 3)
                 {
-                    ShipIndex = 2;
+                    ShipRotationIndex = 2;
                 }
                 else if (GameState.PlayerObject.Kimematic.dX < -1.5)
                 {
-                    ShipIndex = 5;
+                    ShipRotationIndex = 5;
                 }
                 else if (GameState.PlayerObject.Kimematic.dX > 1.5)
                 {
-                    ShipIndex = 3;
+                    ShipRotationIndex = 3;
                 }
             }
 
-
-
             //Apply the ship angle override
-            GameState.PlayerObject.Sprite.SpriteImage = GameState.PlayerObject.Sprite.SpriteArray[ShipIndex];
+            GameState.PlayerObject.Sprite.SpriteImage = GameState.PlayerObject.Sprite.SpriteArray[ShipRotationIndex];
 
-            //System.Diagnostics.Debug.WriteLine("Ship: {0}, Delta X: {1}, Y: {2}", ShipIndex, GameState.PlayerObject.Kimematic.dX, GameState.PlayerObject.Kimematic.dY);
+            // check to see if they want to shoot
+            if (GameState.BulletFireCooldown > 0)
+            {
+                GameState.BulletFireCooldown -= gameTime;
+            }
+            else
+            {
+                if (key.RightShiftHeld || key.LeftShiftHeld || mouse.LeftHeld)
+                {
+                    GameState.BulletFireCooldown = 60.0 / GameState.PlayerBulletsPerMinute;
+                    System.Diagnostics.Debug.WriteLine("Time: {0}, Bullet Time: {1}", gameTime, GameState.BulletFireCooldown);
+                    // spawn a bullet.
+                    GameObject bullet = new GameObject();
+                    bullet.Sprite = new GameSprite();
+                    GameSprite bulletSprite = GameState.PlayerBulletSprites[ShipRotationIndex];
+                    bullet.Sprite.SpriteImage = bulletSprite.SpriteImage;
+                    bullet.Sprite.SpriteArray = new Bitmap[0];
+                    bullet.Sprite.Width = bulletSprite.Width;
+                    bullet.Sprite.Height = bulletSprite.Height;
+                    // test values
+                    bullet.Sprite.X = GameState.PlayerObject.Sprite.X + bulletSprite.X;
+                    bullet.Sprite.Y = GameState.PlayerObject.Sprite.Y + bulletSprite.Y;
+                    bullet.Kimematic = new KinematicObject();
+                    double bulletTheta = (360 - ShipIndexToTheta(ShipRotationIndex)) * (Math.PI/180);
+                    if (bulletTheta > 180)
+                    {
+                        bulletTheta -= 360;
+                    }
+                    bullet.Kimematic.dX = (float)(GameState.BulletSpeed * Math.Cos(bulletTheta)) + GameState.PlayerObject.Kimematic.dX;
+                    bullet.Kimematic.dY = (float)(GameState.BulletSpeed * Math.Sin(bulletTheta)) + GameState.PlayerObject.Kimematic.dY;
+                    bullet.Lifetime = 4.0;
+                    GameState.PlayerBullets.Add(bullet);
+                }
+            }
         }
 
         public static int ThetaToShipIndex(double theta)
@@ -410,5 +494,6 @@ namespace BattleTournament.Script
                     return 90.0;
             }
         }
+
     }
 }

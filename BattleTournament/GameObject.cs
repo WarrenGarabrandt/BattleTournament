@@ -10,5 +10,6 @@ namespace BattleTournament
     {
         public GameSprite Sprite { get; set; }
         public KinematicObject Kimematic { get; set; }
+        public double Lifetime { get; set; }
     }
 }

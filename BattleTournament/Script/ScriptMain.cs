@@ -47,7 +47,7 @@ namespace BattleTournament.Script
 
             if (!GameState.IsPaused)
             {
-                SpaceShipTest.Update(gameTime, mouse, GameState.GameResolution);
+                SpaceShipTest.Update(gameTime, key, mouse, GameState.GameResolution);
             }
         }
     }

@@ -102,7 +102,7 @@ namespace BattleTournament
             {
                 key.LeftShiftHeld = true;
             }
-            else if (key.LeftShiftHeld)
+            else
             {
                 key.LeftShiftHeld = false;
             }
@@ -110,7 +110,7 @@ namespace BattleTournament
             {
                 key.RightShiftHeld = true;
             }
-            else if (key.RightShiftHeld)
+            else
             {
                 key.RightShiftHeld = false;
             }
@@ -155,7 +155,15 @@ namespace BattleTournament
             {
                 g.FillRectangle(new SolidBrush(Color.Black), new Rectangle(0, 0, GameState.GameResolution.Width, GameState.GameResolution.Height));
 
+                // draw the player
                 GameState.PlayerObject.Sprite.Draw(g);
+
+                // draw the player's bullets
+                foreach (var bullet in GameState.PlayerBullets)
+                {
+                    bullet.Sprite.Draw(g);
+                }
+
             }
 
             g.DrawString(DisplayText, fontFPS, Brushes.White, new PointF(5, 5));
